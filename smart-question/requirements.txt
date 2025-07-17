@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+starlette
+pdfplumber
+faiss-cpu
+numpy
+dashscope
+python-docx
+typing-extensions
