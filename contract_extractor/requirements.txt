@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+markdown2
+pandas
+openpyxl
+python-multipart
+PyMuPDF
+beautifulsoup4 
+dashscope
+html5lib
+starlette
