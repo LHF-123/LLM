@@ -78,7 +78,7 @@ def formatting_prompts_func(examples):
 
 # 加载Alpaca数据集
 from datasets import load_dataset
-dataset = load_dataset("/root/autodl-tmp/datasets/yahma/alpaca-cleaned", split = "train")
+dataset = load_dataset("/root/datasets/yahma/alpaca-cleaned", split = "train")
 dataset = dataset.map(formatting_prompts_func, batched = True,)
 
 
@@ -198,7 +198,6 @@ _ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 128)
 
 
 # ### 微调模型保存
-# **[注意]** 这里只是LoRA参数，不是完整模型。
 
 # In[13]:
 
@@ -237,8 +236,6 @@ text_streamer = TextStreamer(tokenizer)
 _ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 128)
 
 
-# You can also use Hugging Face's `AutoModelForPeftCausalLM`. Only use this if you do not have `unsloth` installed. It can be hopelessly slow, since `4bit` model downloading is not supported, and Unsloth's **inference is 2x faster**.
-
 # In[15]:
 
 
@@ -265,71 +262,3 @@ if False:
 if False: model.save_pretrained_merged("model", tokenizer, save_method = "merged_16bit",)
 if False: model.push_to_hub_merged("hf/model", tokenizer, save_method = "merged_16bit", token = "")
 
-# 保存为4bit格式
-if False: model.save_pretrained_merged("model", tokenizer, save_method = "merged_4bit",)
-if False: model.push_to_hub_merged("hf/model", tokenizer, save_method = "merged_4bit", token = "")
-
-# 仅保存LoRA适配器
-if False: model.save_pretrained_merged("model", tokenizer, save_method = "lora",)
-if False: model.push_to_hub_merged("hf/model", tokenizer, save_method = "lora", token = "")
-
-
-# ### GGUF / llama.cpp Conversion
-# To save to `GGUF` / `llama.cpp`, we support it natively now! We clone `llama.cpp` and we default save it to `q8_0`. We allow all methods like `q4_k_m`. Use `save_pretrained_gguf` for local saving and `push_to_hub_gguf` for uploading to HF.
-# 
-# Some supported quant methods (full list on our [Wiki page](https://github.com/unslothai/unsloth/wiki#gguf-quantization-options)):
-# * `q8_0` - Fast conversion. High resource use, but generally acceptable.
-# * `q4_k_m` - Recommended. Uses Q6_K for half of the attention.wv and feed_forward.w2 tensors, else Q4_K.
-# * `q5_k_m` - Recommended. Uses Q6_K for half of the attention.wv and feed_forward.w2 tensors, else Q5_K.
-# 
-# [**NEW**] To finetune and auto export to Ollama, try our [Ollama notebook](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3_(8B)-Ollama.ipynb)
-
-# In[17]:
-
-
-# GGUF/llama.cpp转换
-# 支持多种量化方法：
-# q8_0：快速转换，资源使用较高但一般可接受
-# q4_k_m：推荐使用，对attention.wv和feed_forward.w2使用Q6_K，其他使用Q4_K
-# q5_k_m：推荐使用，对attention.wv和feed_forward.w2使用Q6_K，其他使用Q5_K
-
-# 保存为8bit Q8_0格式
-if False: model.save_pretrained_gguf("model", tokenizer,)
-if False: model.push_to_hub_gguf("hf/model", tokenizer, token = "")
-
-# 保存为16bit GGUF格式
-if False: model.save_pretrained_gguf("model", tokenizer, quantization_method = "f16")
-if False: model.push_to_hub_gguf("hf/model", tokenizer, quantization_method = "f16", token = "")
-
-# 保存为q4_k_m GGUF格式
-if False: model.save_pretrained_gguf("model", tokenizer, quantization_method = "q4_k_m")
-if False: model.push_to_hub_gguf("hf/model", tokenizer, quantization_method = "q4_k_m", token = "")
-
-# 同时保存多种GGUF格式
-if False:
-    model.push_to_hub_gguf(
-        "hf/model",  # 更改为你的用户名
-        tokenizer,
-        quantization_method = ["q4_k_m", "q8_0", "q5_k_m",],
-        token = "",  # 从https://huggingface.co/settings/tokens获取token
-    )
-
-
-# Now, use the `model-unsloth.gguf` file or `model-unsloth-Q4_K_M.gguf` file in llama.cpp or a UI based system like Jan or Open WebUI. You can install Jan [here](https://github.com/janhq/jan) and Open WebUI [here](https://github.com/open-webui/open-webui)
-# 
-# And we're done! If you have any questions on Unsloth, we have a [Discord](https://discord.gg/unsloth) channel! If you find any bugs or want to keep updated with the latest LLM stuff, or need help, join projects etc, feel free to join our Discord!
-# 
-# Some other links:
-# 1. Train your own reasoning model - Llama GRPO notebook [Free Colab](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3.1_(8B)-GRPO.ipynb)
-# 2. Saving finetunes to Ollama. [Free notebook](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3_(8B)-Ollama.ipynb)
-# 3. Llama 3.2 Vision finetuning - Radiography use case. [Free Colab](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3.2_(11B)-Vision.ipynb)
-# 6. See notebooks for DPO, ORPO, Continued pretraining, conversational finetuning and more on our [documentation](https://docs.unsloth.ai/get-started/unsloth-notebooks)!
-# 
-# <div class="align-center">
-#   <a href="https://unsloth.ai"><img src="https://github.com/unslothai/unsloth/raw/main/images/unsloth%20new%20logo.png" width="115"></a>
-#   <a href="https://discord.gg/unsloth"><img src="https://github.com/unslothai/unsloth/raw/main/images/Discord.png" width="145"></a>
-#   <a href="https://docs.unsloth.ai/"><img src="https://github.com/unslothai/unsloth/blob/main/images/documentation%20green%20button.png?raw=true" width="125"></a>
-# 
-#   Join Discord if you need help + ⭐️ <i>Star us on <a href="https://github.com/unslothai/unsloth">Github</a> </i> ⭐️
-# </div>
-# 
