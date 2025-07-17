@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ### 使用 Unsloth 框架对 Qwen2.5-7B 模型进行微调的示例代码
-# ### 本代码可以在免费的 Tesla T4 Google Colab 实例上运行 https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Qwen2.5_(7B)-Alpaca.ipynb
+# 使用 Unsloth 框架对 Qwen2.5-7B 模型进行微调的示例代码
 
 # In[1]:
 
